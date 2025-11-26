@@ -10,6 +10,7 @@ import { registerScriptTools } from "./tools/run-scripts.js";
 import { registerBunTools } from "./tools/bun-tools.js";
 import { registerBunOptimizationTools } from "./tools/bun-optimization-tools.js";
 import { registerServerTools } from "./tools/server-tools.js";
+import { registerRunSkillCodeTool } from "./tools/run-skill-code-mcp.js";
 import { registerBunScriptsResource } from "./resources/npm-scripts.js";
 
 // Read package.json at runtime
@@ -30,10 +31,11 @@ registerScriptTools(server);
 registerBunTools(server);
 registerBunOptimizationTools(server);
 registerServerTools(server);
+registerRunSkillCodeTool(server);
 registerBunScriptsResource(server);
 
 // Start the server
-async function main() {
+const main = async (): Promise<void> => {
   try {
     const transport = new StdioServerTransport();
     await server.connect(transport);
@@ -46,6 +48,6 @@ async function main() {
     console.error("Error starting server:", error);
     process.exit(1);
   }
-}
+};
 
 main();

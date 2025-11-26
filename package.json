@@ -29,10 +29,10 @@
     "development-tools",
     "server-management"
   ],
-  "main": "dist/mcp-bun.js",
+  "main": "src/mcp-bun.ts",
   "type": "module",
   "bin": {
-    "mcp-bun": "dist/mcp-bun.js"
+    "mcp-bun": "src/mcp-bun.ts"
   },
   "files": [
     "dist/**/*",
