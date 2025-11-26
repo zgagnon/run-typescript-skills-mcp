@@ -27,23 +27,26 @@ We need a clear convention for where test files are located relative to the sour
 
 ### File Naming Convention
 - Source file: `[name].ts`
-- Test file: `[name].test.ts`
+- Unit test file: `[name].test.ts`
+- Integration test file: `[name]-integration.test.ts`
 
 ### Example Structure
 ```
 api/
   src/
-    jj.ts          # Source code
-    jj.test.ts     # Tests for jj.ts
-    util.ts        # Source code
-    util.test.ts   # Tests for util.ts
+    jj.ts                    # Source code
+    jj.test.ts               # Unit tests for jj.ts
+    jj-integration.test.ts   # Integration tests for jj.ts
+    util.ts                  # Source code
+    util.test.ts             # Unit tests for util.ts
 ```
 
 ### Rules
-1. Each `.ts` source file MUST have a corresponding `.test.ts` file in the same directory
+1. Each `.ts` source file SHOULD have a corresponding `.test.ts` file in the same directory
 2. Test file name MUST match source file name with `.test.ts` suffix
-3. Test file MUST be in the exact same directory as the source file it tests
-4. One test file per source file (no shared test files)
+3. Integration test files MAY use `-integration.test.ts` suffix to distinguish from unit tests
+4. Test file MUST be in the exact same directory as the source file it tests
+5. Multiple test files per source file are allowed for unit vs integration tests
 
 ### Exceptions
 - Files that only export types (no runtime code) may skip test files
