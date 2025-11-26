@@ -5,11 +5,11 @@ import { runSkillCode } from "./run-skill-code.js";
 export const registerRunSkillCodeTool = (server: McpServer): void => {
   server.tool(
     "run-skill-code",
-    "Execute TypeScript code in-process with access to ~/.claude/skills APIs",
+    "Execute TypeScript code in-process with access to ~/.claude/skills APIs. Supports top-level await. IMPORTANT: Use single-line imports only (multi-line imports not supported). Use ~ for ~/.claude/skills paths. Returns {returnValue, stdout, stderr}.",
     {
       code: z
         .string()
-        .describe("TypeScript code to execute with top-level await support"),
+        .describe("TypeScript code to execute. IMPORTANT: All import statements must be single-line (e.g., 'import { x, y } from \"path\"'). Supports top-level await. Use 'return' to set returnValue, console.log() for stdout output."),
       description: z
         .string()
         .optional()

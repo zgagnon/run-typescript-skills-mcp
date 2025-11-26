@@ -5,13 +5,8 @@ import { readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
-// Import all tool and resource registrations
-import { registerScriptTools } from "./tools/run-scripts.js";
-import { registerBunTools } from "./tools/bun-tools.js";
-import { registerBunOptimizationTools } from "./tools/bun-optimization-tools.js";
-import { registerServerTools } from "./tools/server-tools.js";
+// Import tool registration
 import { registerRunSkillCodeTool } from "./tools/run-skill-code-mcp.js";
-import { registerBunScriptsResource } from "./resources/npm-scripts.js";
 
 // Read package.json at runtime
 const __filename = fileURLToPath(import.meta.url);
@@ -26,13 +21,8 @@ const server = new McpServer({
   version: packageJson.version || "0.0.0-SNAPSHOT",
 });
 
-// Register all tools and resources
-registerScriptTools(server);
-registerBunTools(server);
-registerBunOptimizationTools(server);
-registerServerTools(server);
+// Register tools
 registerRunSkillCodeTool(server);
-registerBunScriptsResource(server);
 
 // Start the server
 const main = async (): Promise<void> => {
