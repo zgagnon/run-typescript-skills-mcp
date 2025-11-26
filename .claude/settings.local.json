@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(superpowers:discovery-tree-workflow)",
+      "Bash(bd dep tree:*)",
+      "Skill(discovery-tree-workflow)",
+      "Bash(bun:*)",
+      "Skill(superpowers:brainstorming)",
+      "Skill(wishful-thinking-programming)",
+      "Skill(incremental-tdd)",
+      "Skill(adr-review)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
