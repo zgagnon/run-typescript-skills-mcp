@@ -1,349 +1,147 @@
-# MCP Bun Server
+# Run TypeScript Skills MCP Server
 
-[![Bun Version](https://img.shields.io/badge/bun-%3E%3D1.0.0-orange.svg)](https://bun.sh/)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
-[![NPM Version](https://img.shields.io/npm/v/mcp-bun)](https://www.npmjs.com/package/mcp-bun)
+An MCP server that lets AI agents execute TypeScript code with access to modular APIs in `~/.claude/skills`.
 
+## What This Enables
 
-A comprehensive Model Context Protocol (MCP) server implementation optimized for the Bun JavaScript runtime. This server provides AI assistants with powerful tools to execute, optimize, and manage JavaScript/TypeScript projects using Bun's high-performance runtime.
+This MCP server provides one tool: `run-skill-code`. When enabled, your AI agent can execute TypeScript code that imports and calls functions from `~/.claude/skills`.
 
-**🔄 Runtime Compatibility**: The server requires bun to be installed in the environment the MCP server will run (Windows native, Windows WSL2, etc). See more installation details below.
+### Why You Might Want This
 
-![sample usage](sample_usage.png)
+**Fast programmatic workflows**: Instead of your agent repeatedly calling command-line tools (slow, text parsing), it can call TypeScript functions directly and get structured data back.
 
-## Features
+**Richer agent capabilities**: If you've built TypeScript APIs for task management, version control workflows, data processing, or other tooling in `~/.claude/skills`, this lets agents use them programmatically.
 
-### 🚀 Bun-Optimized Execution
+**Better performance**: In-process execution is much faster than spawning processes for every operation.
 
-- **Fast Script Execution**: Run JavaScript/TypeScript files with Bun's optimized runtime
-- **Built-in TypeScript Support**: Execute TypeScript directly without compilation
-- **Memory Optimization**: Use `--smol` flag for memory-constrained environments
-- **Hot Reloading**: Development server with `--hot` flag support
+**Type-safe interactions**: Your agent gets structured results with proper types instead of parsing text output.
 
-### 🔧 Development Tools
+### Why You Might Not Want This
 
-- **Package Management**: Install dependencies with `bun install`
-- **Script Runner**: Execute package.json scripts with `bun run`
-- **Build System**: Optimize projects with `bun build` including minification and bundling
-- **Test Runner**: Fast testing with `bun test` and coverage reporting
+**Security risk**: Code executes in-process with full file system access and no sandboxing. If your agent writes malicious code (or makes mistakes), it runs with your permissions.
 
-### 📊 Performance Analytics
+**Limited use case**: Only useful if you have (or plan to build) TypeScript APIs in `~/.claude/skills`. If you don't, this MCP provides no value.
 
-- **Project Analysis**: Analyze bundle sizes, dependencies, and runtime performance
-- **Benchmarking**: Compare script performance with different optimization flags
-- **Optimization Suggestions**: Get recommendations for Bun-specific optimizations
+**Trust requirement**: You must trust your AI agent to write and execute code safely. There's no safety net.
 
-### 🖥️ Server Management
+**Development overhead**: You need to build and maintain the TypeScript APIs yourself.
 
-- **Background Servers**: Start and manage long-running Bun/Node.js servers
-- **Process Monitoring**: Track server status, logs, and performance
-- **Hot Reloading Servers**: Development servers with file watching capabilities
+## When to Use This
 
-### 🔍 Resource Discovery
+**Good fit**:
+- You have TypeScript APIs in `~/.claude/skills` that you want agents to use
+- You trust your AI agent to execute code safely
+- You want fast, programmatic workflows
+- You're comfortable with the security tradeoffs
 
-- **Script Listing**: Browse available npm/package.json scripts
-- **Project Structure**: Understand project dependencies and configuration
+**Not a good fit**:
+- You don't have any skills/APIs for the agent to call
+- You're uncomfortable with in-process code execution
+- You need sandboxing or security isolation
+- You prefer command-line tools
 
-## Quick Start
+## Installation
 
 ### Prerequisites
 
-- [Bun](https://bun.sh/) v1.0.0 or later (recommended)
-- Node.js v18.0.0 or later (for compatibility)
+- [Bun](https://bun.sh/) v1.0.0 or later
 
-For MacOS/Linux users, install Bun using the instructions on the [Bun website](https://bun.sh/docs/installation#macos-and-linux).
-
-For Windows, the installation depends if you develope with WSL2 or not:
-
-- For native Windows development, install Bun using the [Windows installer](https://bun.sh/docs/installation#windows).
-- If you develop with WSL2, install Bun in your WSL2 environment using the [Linux installation instructions](https://bun.sh/docs/installation#macos-and-linux).
-
-### Configuration
-
-#### On VSCode MCP Client
-
-For quick installation, use one of the one-click install buttons below...
-
-[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=bun&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22mcp-bun@latest%22%5D%7D) [![Install with UV in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-UV-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=bun&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22mcp-bun@latest%22%5D%7D&quality=insiders)
-
-Or use the configs below.
-
-If using globally, add the following to your MCP client configuration on `settings.json`:
-
-```json
-{
-  ...
-  "mcp": {
-    "servers": {
-      "bun": {
-        "command": "bunx",
-        "args": ["-y", "mcp-bun@latest"],
-        "env": {
-          "DISABLE_NOTIFICATIONS": "true"
-        }
-      }
-    }
-  }
-}
-```
-
-On Windows, **this doesn't work properly when using WSL2** if your project lives in the WSL2 filesystem and you run VSCode natively on Windows. This happens because the MCP server runs on Windows and the Bun commands are executed in the WSL2 environment, which can lead to path issues.
-
-In this case, **configure the MCP server in the project workspace configuration** file which makes the MCP server run in the WSL2 environment and execute the Bun commands there.
-
-Create a file named `.vscode/mcp.json` in your project root with the following content:
-
-```json
-{
-  "servers": {
-    "bun": {
-      "command": "bunx",
-      "args": ["-y", "mcp-bun@latest"],
-      "env": {
-        "DISABLE_NOTIFICATIONS": "true"
-      }
-    }
-```
-
-#### On Claude Desktop
-
-Configure your Claude Desktop MCP client with the following:
-
-```json
-{
-  "mcpServers": {
-    "bun": {
-      "command": "bunx",
-      "args": ["-y", "mcp-bun@latest"],
-      "env": {
-        "DISABLE_NOTIFICATIONS": "true",  // Optional: disable permission prompts
-      }
-    }
-  }
-}
-```
-
-#### For Development/Local Installation
-
-Clone the repository to your local machine, install dependencies, and build the project:
+### Setup
 
 ```bash
-git clone https://github.com/carlosedp/mcp-bun.git
-cd mcp-bun
+git clone <repository-url>
+cd run-typescript-skills-mcp
 bun install
 bun run build
 ```
 
-Then configure your MCP client to use the local build:
+### Configure Your MCP Client
 
+**VS Code** (`.vscode/settings.json`):
 ```json
 {
-  "servers": {
-    "bun-dev": {
-      "command": "bun",
-      "args": ["/home/user/mcp-bun/dist/mcp-bun.js"],
-      "env": {
-        "DISABLE_NOTIFICATIONS": "true"
+  "mcp": {
+    "servers": {
+      "run-typescript-skills": {
+        "command": "bun",
+        "args": ["/absolute/path/to/run-typescript-skills-mcp/src/mcp-bun.ts"]
       }
-    },
+    }
   }
 }
 ```
 
-For testing there's also the MCP Inspector available, which allows you to run the server with Bun and inspect the commands being executed:
-
-```bash
-bun run dev
+**Claude Desktop**:
+```json
+{
+  "mcpServers": {
+    "run-typescript-skills": {
+      "command": "bun",
+      "args": ["/absolute/path/to/run-typescript-skills-mcp/src/mcp-bun.ts"]
+    }
+  }
+}
 ```
 
-## Available Tools
+## What Your Agent Can Do
 
-### Core Execution Tools
+Once enabled, your agent can execute TypeScript code like:
 
-#### `run-bun-script-file`
+```typescript
+import { createTask } from '~/.claude/skills/my-workflow/src/api.js';
 
-Execute JavaScript/TypeScript files with Bun runtime optimizations.
+const task = await createTask({
+  title: "Write documentation",
+  priority: 1
+});
 
-**Parameters:**
-
-- `scriptPath`: Path to the script file
-- `bunArgs`: Optional Bun flags (e.g., `--smol`, `--hot`)
-- `args`: Arguments to pass to the script
-- `stdin`: Optional standard input
-- `cwd`: Working directory
-- `timeout`: Execution timeout
-
-
-#### `run-bun-eval`
-
-Execute JavaScript/TypeScript code directly with Bun eval.
-
-**Parameters:**
-
-- `code`: Code to execute
-- `evalDirectory`: Execution directory
-- `bunArgs`: Bun optimization flags
-- `stdin`: Standard input
-- `timeout`: Execution timeout
-
-### Package Management
-
-#### `run-bun-install`
-
-Install dependencies using Bun's fast package manager.
-
-**Parameters:**
-
-- `packageDir`: Directory containing package.json
-- `dependency`: Specific package to install (optional)
-
-#### `run-bun-script`
-
-Execute npm scripts using Bun.
-
-**Parameters:**
-
-- `packageDir`: Directory containing package.json
-- `scriptName`: Script name to run
-- `args`: Additional arguments
-
-### Build & Optimization
-
-#### `run-bun-build`
-
-Build and optimize projects with Bun's bundler.
-
-**Parameters:**
-
-- `entryPoint`: Entry file to build
-- `outDir`: Output directory
-- `target`: Build target (`browser`, `bun`, `node`)
-- `minify`: Enable minification
-- `sourcemap`: Generate source maps
-- `splitting`: Enable code splitting
-
-#### `run-bun-test`
-
-Execute tests with Bun's fast test runner.
-
-**Parameters:**
-
-- `testPath`: Test file or directory
-- `coverage`: Enable code coverage
-- `watch`: Enable watch mode
-- `bail`: Stop after N failures
-- `timeout`: Test timeout
-
-### Performance Analysis
-
-#### `analyze-bun-performance`
-
-Comprehensive project performance analysis.
-
-**Parameters:**
-
-- `projectDir`: Project directory
-- `entryPoint`: Entry point to analyze
-- `options`: Analysis options (bundle, dependencies, runtime)
-
-#### `benchmark-bun-script`
-
-Benchmark script performance with different optimization flags.
-
-**Parameters:**
-
-- `scriptPath`: Script to benchmark
-- `iterations`: Number of test runs
-- `warmup`: Warmup runs
-
-### Server Management
-
-#### `start-bun-server`
-
-Start optimized Bun servers with hot reloading and watch capabilities.
-
-**Parameters:**
-
-- `scriptPath`: Server script path
-- `cwd`: Working directory
-- `bunArgs`: Bun flags
-- `optimizations`: Hot reload, watch, smol mode options
-
-#### Additional Server Tools
-
-- `start-node-server`: Start Node.js servers for compatibility
-- `list-servers`: List all running servers with status and logs
-- `stop-server`: Stop running servers gracefully or forcefully
-- `get-server-logs`: Retrieve server logs with filtering options
-
-### Version Management
-
-#### `get-bun-version`
-
-Get current Bun version and revision information.
-
-#### `list-bun-versions`
-
-List available Bun installations.
-
-#### `select-bun-version`
-
-Select specific Bun version for execution.
-
-## Performance Optimization Tips
-
-### Memory Optimization
-
-Use the `--smol` flag for memory-constrained environments:
-
-```bash
-bun --smol your-script.js
+return task;
 ```
 
-## Security Considerations
+The agent gets back structured data:
+```json
+{
+  "returnValue": { "id": "task-123", "title": "Write documentation", "priority": 1 },
+  "stdout": "",
+  "stderr": ""
+}
+```
 
-- The server prompts for permission before executing any command
-- Scripts run with the same permissions as the MCP server process
-- Use environment variable `DISABLE_NOTIFICATIONS=true` for automation
-- Be cautious when running scripts from untrusted sources
+## Security Model
+
+⚠️ **No sandboxing**: Code runs in-process with full system access.
+
+⚠️ **Same permissions as server**: If the MCP server can access a file, so can the executed code.
+
+⚠️ **Trust-based**: You're trusting your AI agent to write safe code.
+
+**This is designed for**: Controlled environments where you trust your agent and want fast, programmatic access to your own TypeScript APIs.
+
+**This is NOT designed for**: Executing untrusted code, multi-user environments, or situations requiring isolation.
 
 ## Development
 
-### Building
-
 ```bash
-bun run build        # Build with Bun
-bun run build:node   # Build with Node.js/TypeScript
+bun run build        # Compile TypeScript
+bun run dist         # Build optimized bundle
+bun test             # Run tests
+bun run dev          # Development mode with MCP Inspector
 ```
 
-### Development Mode
+## Architecture
 
-```bash
-bun run dev          # Run with Bun + MCP Inspector
-bun run dev:node     # Run with Node.js + MCP Inspector
-```
+- `src/mcp-bun.ts` - MCP server entry point
+- `src/tools/run-skill-code-mcp.ts` - Tool registration
+- `src/tools/run-skill-code.ts` - Public API
+- `src/tools/run-skill-code-impl.ts` - Implementation
 
-### Linting
-
-```bash
-bun run lint         # Check for issues
-bun run lint:fix     # Fix auto-fixable issues
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+See [docs/adr/](docs/adr/) for architectural decisions.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
+## Links
 
-- Built on the [Model Context Protocol](https://modelcontextprotocol.io/)
-- Optimized for [Bun](https://bun.sh/) runtime
-- Heavily inspired by the [MCP Node.js server](https://github.com/platformatic/mcp-node)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [Bun Runtime](https://bun.sh/)
